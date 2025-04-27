@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-04-2025 a las 01:06:23
+-- Tiempo de generación: 27-04-2025 a las 01:22:39
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `facturacion`
+-- Base de datos: `inventario1`
 --
 
 -- --------------------------------------------------------
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `categoria` (
   `codigo_categoria` int(11) NOT NULL,
-  `nombre` varchar(50) NOT NULL
+  `nombre_categoria` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -40,10 +40,38 @@ CREATE TABLE `categoria` (
 
 CREATE TABLE `cliente` (
   `cedula` varchar(20) NOT NULL,
-  `nombre` varchar(50) NOT NULL,
-  `apellido` varchar(50) NOT NULL,
+  `nombre_cliente` varchar(50) DEFAULT NULL,
+  `apellido` varchar(50) DEFAULT NULL,
   `direccion` varchar(100) DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `compras_proveedor`
+--
+
+CREATE TABLE `compras_proveedor` (
+  `id_compra_proveedor` int(11) NOT NULL,
+  `rif_proveedor` varchar(13) DEFAULT NULL,
+  `fecha_compra_proveedor` date NOT NULL,
+  `monto_proveedor` decimal(10,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detallecompras`
+--
+
+CREATE TABLE `detallecompras` (
+  `detalle_id` int(11) NOT NULL,
+  `compra_id` int(11) NOT NULL,
+  `codigo_producto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precio_costo` decimal(10,2) NOT NULL,
+  `subtotal` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -54,10 +82,10 @@ CREATE TABLE `cliente` (
 
 CREATE TABLE `detalle_venta` (
   `id_detalle` int(11) NOT NULL,
-  `codigo_venta` int(11) NOT NULL,
-  `codigo_producto` int(11) NOT NULL,
-  `cantidad` int(11) NOT NULL CHECK (`cantidad` > 0),
-  `precio_unitario` decimal(10,2) NOT NULL CHECK (`precio_unitario` >= 0)
+  `codigo_venta` int(11) DEFAULT NULL,
+  `codigo_producto` int(11) DEFAULT NULL,
+  `cantidad` int(11) DEFAULT NULL,
+  `precio_unitario` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -68,7 +96,7 @@ CREATE TABLE `detalle_venta` (
 
 CREATE TABLE `forma_pago` (
   `codigo_forma_pago` int(11) NOT NULL,
-  `nombre` varchar(50) NOT NULL
+  `nombre_forma_pago` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -86,17 +114,52 @@ CREATE TABLE `forma_venta` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `permisos`
+--
+
+CREATE TABLE `permisos` (
+  `id` int(11) NOT NULL,
+  `rol` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `productos`
 --
 
 CREATE TABLE `productos` (
   `codigo_producto` int(11) NOT NULL,
-  `precio` decimal(10,2) NOT NULL CHECK (`precio` >= 0),
-  `stock` int(11) NOT NULL CHECK (`stock` >= 0),
-  `nombre` varchar(50) NOT NULL,
+  `precio` decimal(10,2) DEFAULT NULL,
+  `stock` int(11) DEFAULT NULL,
+  `nombre_producto` varchar(50) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
-  `codigo_categoria` int(11) DEFAULT NULL
+  `categoria` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `proveedores`
+--
+
+CREATE TABLE `proveedores` (
+  `rif_proveedor` varchar(13) NOT NULL,
+  `nombre_proveedor` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `user`
+--
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `username` varchar(20) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `rol` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------
 
@@ -106,9 +169,9 @@ CREATE TABLE `productos` (
 
 CREATE TABLE `venta` (
   `codigo_venta` int(11) NOT NULL,
-  `monto` decimal(10,2) NOT NULL CHECK (`monto` >= 0),
-  `fecha` date NOT NULL,
-  `cedula_cliente` varchar(20) DEFAULT NULL
+  `monto` decimal(10,2) DEFAULT NULL,
+  `fecha` date DEFAULT NULL,
+  `cliente` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -126,6 +189,21 @@ ALTER TABLE `categoria`
 --
 ALTER TABLE `cliente`
   ADD PRIMARY KEY (`cedula`);
+
+--
+-- Indices de la tabla `compras_proveedor`
+--
+ALTER TABLE `compras_proveedor`
+  ADD PRIMARY KEY (`id_compra_proveedor`),
+  ADD KEY `rif_proveedor` (`rif_proveedor`);
+
+--
+-- Indices de la tabla `detallecompras`
+--
+ALTER TABLE `detallecompras`
+  ADD PRIMARY KEY (`detalle_id`),
+  ADD KEY `compra_id` (`compra_id`),
+  ADD KEY `codigo_producto` (`codigo_producto`);
 
 --
 -- Indices de la tabla `detalle_venta`
@@ -150,18 +228,37 @@ ALTER TABLE `forma_venta`
   ADD KEY `codigo_forma_pago` (`codigo_forma_pago`);
 
 --
+-- Indices de la tabla `permisos`
+--
+ALTER TABLE `permisos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `productos`
 --
 ALTER TABLE `productos`
   ADD PRIMARY KEY (`codigo_producto`),
-  ADD KEY `codigo_categoria` (`codigo_categoria`);
+  ADD KEY `categoria` (`categoria`);
+
+--
+-- Indices de la tabla `proveedores`
+--
+ALTER TABLE `proveedores`
+  ADD PRIMARY KEY (`rif_proveedor`);
+
+--
+-- Indices de la tabla `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `permisos` (`rol`);
 
 --
 -- Indices de la tabla `venta`
 --
 ALTER TABLE `venta`
   ADD PRIMARY KEY (`codigo_venta`),
-  ADD KEY `cedula_cliente` (`cedula_cliente`);
+  ADD KEY `cliente` (`cliente`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -172,6 +269,18 @@ ALTER TABLE `venta`
 --
 ALTER TABLE `categoria`
   MODIFY `codigo_categoria` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `compras_proveedor`
+--
+ALTER TABLE `compras_proveedor`
+  MODIFY `id_compra_proveedor` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `detallecompras`
+--
+ALTER TABLE `detallecompras`
+  MODIFY `detalle_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_venta`
@@ -208,30 +317,49 @@ ALTER TABLE `venta`
 --
 
 --
+-- Filtros para la tabla `compras_proveedor`
+--
+ALTER TABLE `compras_proveedor`
+  ADD CONSTRAINT `compras_proveedor_ibfk_1` FOREIGN KEY (`rif_proveedor`) REFERENCES `proveedores` (`rif_proveedor`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `detallecompras`
+--
+ALTER TABLE `detallecompras`
+  ADD CONSTRAINT `detallecompras_ibfk_1` FOREIGN KEY (`compra_id`) REFERENCES `compras_proveedor` (`id_compra_proveedor`) ON DELETE CASCADE,
+  ADD CONSTRAINT `detallecompras_ibfk_2` FOREIGN KEY (`codigo_producto`) REFERENCES `productos` (`codigo_producto`);
+
+--
 -- Filtros para la tabla `detalle_venta`
 --
 ALTER TABLE `detalle_venta`
-  ADD CONSTRAINT `detalle_venta_ibfk_1` FOREIGN KEY (`codigo_venta`) REFERENCES `venta` (`codigo_venta`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `detalle_venta_ibfk_2` FOREIGN KEY (`codigo_producto`) REFERENCES `productos` (`codigo_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `detalle_venta_ibfk_1` FOREIGN KEY (`codigo_venta`) REFERENCES `venta` (`codigo_venta`),
+  ADD CONSTRAINT `detalle_venta_ibfk_2` FOREIGN KEY (`codigo_producto`) REFERENCES `productos` (`codigo_producto`);
 
 --
 -- Filtros para la tabla `forma_venta`
 --
 ALTER TABLE `forma_venta`
-  ADD CONSTRAINT `forma_venta_ibfk_1` FOREIGN KEY (`codigo_venta`) REFERENCES `venta` (`codigo_venta`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `forma_venta_ibfk_2` FOREIGN KEY (`codigo_forma_pago`) REFERENCES `forma_pago` (`codigo_forma_pago`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `forma_venta_ibfk_1` FOREIGN KEY (`codigo_venta`) REFERENCES `venta` (`codigo_venta`) ON DELETE CASCADE,
+  ADD CONSTRAINT `forma_venta_ibfk_2` FOREIGN KEY (`codigo_forma_pago`) REFERENCES `forma_pago` (`codigo_forma_pago`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `productos`
 --
 ALTER TABLE `productos`
-  ADD CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`codigo_categoria`) REFERENCES `categoria` (`codigo_categoria`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `productos_ibfk_1` FOREIGN KEY (`categoria`) REFERENCES `categoria` (`codigo_categoria`);
+
+--
+-- Filtros para la tabla `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`rol`) REFERENCES `permisos` (`id`);
 
 --
 -- Filtros para la tabla `venta`
 --
 ALTER TABLE `venta`
-  ADD CONSTRAINT `venta_ibfk_1` FOREIGN KEY (`cedula_cliente`) REFERENCES `cliente` (`cedula`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `venta_ibfk_1` FOREIGN KEY (`cliente`) REFERENCES `cliente` (`cedula`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
