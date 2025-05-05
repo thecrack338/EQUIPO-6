@@ -10,4 +10,4 @@ C.I: 30758800
 •	Rubén Tovar
 C.I: 30448887
 •	Víctor Hernández
-C.I: 29914941
+C.I: 29914941.
