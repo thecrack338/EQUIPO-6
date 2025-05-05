@@ -1,7 +1,7 @@
 #EQUIPO #6
 
 "Sistema web de Facturación e inventario para la empresa Cesar Technology"
-Se hicieron las correciones de los requerimientos el diagrama entidad relacion y sql
+Se hicieron las correciones de los requerimientos el diagrama entidad relacion y sql.
 Integrantes del Proyecto:
 •	Edinson Rivas
 C.I: 30127370
